@@ -44,6 +44,7 @@ function App() {
     var startTime, endTime;
     var download = new Image();
     download.onload = () => {
+      setShowed(false);
       endTime = new Date().getTime();
       showResults();
     };
