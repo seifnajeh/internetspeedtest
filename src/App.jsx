@@ -1,44 +1,23 @@
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import { BarLoader } from "react-spinners";
 import "./App.css";
 
 function App() {
   const [showed, setShowed] = useState(true);
-
-  const Ref = useRef();
+  const [speed, setSpeed] = useState(null);
+  const [wait, setWait] = useState(true);
 
   var imageAddr =
     "https://images.pexels.com/photos/1252869/pexels-photo-1252869.jpeg";
   var downloadSize = 7214054; //bytes
 
-  const ShowProgressMessage = (msg) => {
-    if (console) {
-      if (typeof msg == "string") {
-        console.log(msg);
-      } else {
-        for (var i = 0; i < msg.length; i++) {
-          console.log(msg[i]);
-        }
-      }
-    }
-
-    var oProgress = document.getElementById("test");
-    if (oProgress) {
-      var actualHTML = typeof msg == "string" ? msg : msg.join("<br />");
-      oProgress.innerHTML = actualHTML;
-    }
-  };
-
-  const InitiateSpeedDetection = () => {
-    // ShowProgressMessage("Loading the image, please wait...");
-    window.setTimeout(MeasureConnectionSpeed, 1);
-  };
-
-  if (window.addEventListener) {
-    window.addEventListener("load", InitiateSpeedDetection, false);
-  } else if (window.attachEvent) {
-    window.attachEvent("onload", InitiateSpeedDetection);
-  }
+  useEffect(() => {
+    // on mount
+    MeasureConnectionSpeed();
+    return () => {
+      // dismount
+    };
+  }, []);
 
   const MeasureConnectionSpeed = () => {
     var startTime, endTime;
@@ -50,7 +29,7 @@ function App() {
     };
 
     download.onerror = (err, msg) => {
-      ShowProgressMessage("Invalid image, or error downloading");
+      setSpeed("Error");
     };
 
     startTime = new Date().getTime();
@@ -63,13 +42,29 @@ function App() {
       var speedBps = (bitsLoaded / duration).toFixed(2);
       var speedKbps = (speedBps / 1024).toFixed(2);
       var speedMbps = (speedKbps / 1024).toFixed(2);
-      ShowProgressMessage(["Debit mta3ek tawa:", speedMbps + " Mbps"]);
+      setSpeed(speedMbps);
     };
   };
+  setTimeout(() => {
+    setWait(false);
+  }, 5000);
+  if (showed)
+    return (
+      <div className="App">
+        <BarLoader color="#ffffff" loading={showed} size={150} />
+        {!wait && (
+          <div id="wait-msg">
+            Stanna chwaya, tnajem to9eed chwaya seconds okhrin :)
+          </div>
+        )}
+      </div>
+    );
   return (
     <div className="App">
-      <BarLoader color="#ffffff" loading={showed} size={150} />
-      <div id="test" ref={Ref}></div>
+      <div id="test">
+        Debit mtaak (ta9riban) <br />
+        {speed} Mbps
+      </div>
     </div>
   );
 }
